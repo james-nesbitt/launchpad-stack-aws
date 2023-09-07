@@ -1,0 +1,41 @@
+#!bash
+#
+# Run terraform in the infra of app/X folder
+#
+
+target="${1:-infra}"
+shift
+
+command="${1}"
+shift
+args=$@
+
+chdir="-chdir=$target"
+
+USE_CONFIG=1
+USE_GLOBAL_VARS=1
+
+case $command in
+	"fmt")
+		USE_GLOBAL_VARS=0
+	  ;; 
+	"state")
+		USE_GLOBAL_VARS=0
+	  ;;
+	*)
+		USE_CONFIG=1
+		USE_GLOBAL_VARS=1
+	  ;;
+esac
+
+if [ $USE_CONFIG -eq 1 ]; then
+	export TF_CLI_CONFIG_FILE="${PWD}/my_tf.cfg"
+fi
+
+if [ $USE_GLOBAL_VARS -eq 1 ]; then
+    globalcfg="-var-file=${PWD}/global.tfvars"
+else
+	globalcfg=""
+fi
+
+$(which terraform) $chdir ${command} ${globalcfg} ${args}

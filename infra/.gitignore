@@ -1,0 +1,11 @@
+# values that make sense if you intend to turn this into a
+# Git repository, or add it to an existing repo.
+
+# our module puts a private ssh key into this folder
+ssh_keys
+
+# terraform plugin cache
+.terraform
+# terraform state files, which don't belong in git.
+terraform.tfstate
+terraform.tfstate.backup
