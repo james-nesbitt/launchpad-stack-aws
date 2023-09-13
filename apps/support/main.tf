@@ -1,16 +1,18 @@
 
-# Configure the MKE Provider
+# Now that we have a user we build an mke provider/client-bundle on it.
 provider "mke" {
-  endpoint          = "https://${module.provision.mke_lb}"
-  username          = var.mke_connect.username
-  password          = var.mke_connect.password
-  unsafe_ssl_client = true
+  alias = "infrasupport"
+
+  endpoint          = local.mke_connect.endpoint
+  unsafe_ssl_client = local.mke_connect.unsafe_ssl
+  username          = mke_user.infrasupport.name
+  password          = mke_user.infrasupport.password
 }
 
 resource "mke_clientbundle" "support" {
   label = "tf_infra_support"
 
-  depends_on = [launchpad_config.cluster]
+  provider = mke.infrasupport
 }
 
 module "support-aws-ebs-csi" {

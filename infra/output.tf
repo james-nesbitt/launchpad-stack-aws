@@ -1,12 +1,27 @@
 
-output "mke_lb" {
-  value = module.provision.mke_lb
+output "nodes" {
+  value = local.nodegroups
 }
 
-output "hosts" {
-  value = module.provision.hosts
+output "ingresses" {
+  value = module.provision.ingresses
 }
 
-#output "mke_cluster" {
-#  value = module.provision.mke_cluster
-#}
+output "mke_connect" {
+  description = "Connection information for MKE"
+  sensitive   = true
+
+  value = {
+    username   = var.mke_connect.username
+    password   = var.mke_connect.password
+    endpoint   = "https://${local.MKE_URL}"
+    unsafe_ssl = var.mke_connect.unsafe_ssl
+  }
+}
+
+output "launchpad_yaml" {
+  description = "Yaml for launchpad config"
+  sensitive   = true
+
+  value = local.launchpad_yaml_14
+}

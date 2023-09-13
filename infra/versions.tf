@@ -3,9 +3,5 @@ terraform {
     launchpad = {
       source = "Mirantis/launchpad"
     }
-    mke = {
-      source = "mirantis/mke"
-    }
   }
 }
-

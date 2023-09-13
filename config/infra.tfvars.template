@@ -1,0 +1,67 @@
+name = "unnamed"
+
+aws_region = "us-east-1"
+
+mcr_version = "20.10.16"
+mke_version = "3.6.6"
+
+mke_connect = {
+  username = "admin"
+  password = ""
+  unsafe_ssl = true
+}
+
+// configure the network stack
+network = {
+  cidr                 = "172.31.0.0/16"
+  public_subnet_count  = 3
+  private_subnet_count = 0 // if 0 then no private nodegroups allowed
+}
+
+// one definition for each group of machines to include in the stack
+nodegroups = {
+  // A stack
+  "AMan" = { // managers for A
+    platform    = "ubuntu_20.04"
+    count       = 3
+    type        = "m6a.2xlarge"
+    volume_size = 100
+    role        = "manager"
+    public      = true // public subnets or private subnets
+    user_data   = ""
+  },
+  "AWrk_1" = { // workers for A
+    platform    = "ubuntu_20.04"
+    count       = 6
+    type        = "c6a.xlarge"
+    volume_size = 100
+    public      = true // public subnets or private subnets
+    role        = "worker"
+    user_data   = ""
+  }
+}
+
+// one definition per incoming ingress, for a collection of nodegroups
+ingresses = {
+  "mke" = {
+    nodegroups           = ["AMan"]
+    node_port            = 80
+    node_protocol        = "TCP"
+    listen_http_port     = 443
+    listen_http_protocol = "TCP"
+  }
+}
+
+// Override or append the library of platforms 
+//custom_platforms = {
+//  "ubuntu_22.04" : { 
+//    "ami_name" : "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*",
+//    "owner" : "099720109477",
+//    "user" : "ubuntu",
+//    "interface" : "ens5",
+//    "connection" : "ssh"
+//  }
+//}
+
+// needed if you have windows hosts
+//windows_password = ""
