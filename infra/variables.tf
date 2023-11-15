@@ -107,3 +107,14 @@ variable "extra_tags" {
   default     = {}
 }
 
+variable "mke_skip_install" {
+  description = ""
+  type = bool
+  default = false
+}
+
+variable "mke_skip_uninstall" {
+  description = ""
+  type = bool
+  default = false
+}

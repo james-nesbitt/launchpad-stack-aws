@@ -4,7 +4,7 @@ module "nodegroups" {
 
   source = "./nodegroup"
 
-  name = each.key
+  name = "${var.name}-${each.key}"
 
   ami              = each.value.ami
   type             = each.value.type

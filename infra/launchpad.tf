@@ -28,8 +28,8 @@ locals {
 resource "launchpad_config" "cluster" {
   # Tell the launchpad provider to not bother uninstalling
   # the container products on terraform destroy operations.
-  skip_destroy = true
-  skip_create  = false
+  skip_destroy = var.mke_skip_uninstall
+  skip_create  = var.mke_skip_install
 
   metadata {
     name = var.name
