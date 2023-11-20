@@ -1,68 +1,32 @@
 
-// calculated before generating albs
-locals {
-  // combine the list of nodes for the ingress so that we can assign them as targets
-  ingresses_withnodes = { for k, i in var.ingresses : k => merge(
-    i,
-    {
-      nodes : concat([for k, n in local.nodegroups_safer : n.nodes if contains(i.nodegroups, k)]...),
-      nodecount : sum([for k, n in local.nodegroups_safer : n.count if contains(i.nodegroups, k)]) // deterministic expected node count that can be used for loop indexes
-    }
-  ) }
-}
-
 module "alb" {
-  // one alb per ingress, but combine in the list of nodes for the ingress so that we can make target groups
-  for_each = local.ingresses_withnodes
-
   source = "terraform-aws-modules/alb/aws"
 
-  name = "${var.name}-${each.key}"
+  name = "${var.stack}-${var.name}"
 
   load_balancer_type = "network"
 
   vpc_id  = module.vpc.vpc_id
-  subnets = concat(module.vpc.public_subnets, module.vpc.private_subnets)
 
-  //access_logs = {
-  //  bucket = "my-alb-logs"
-  //}
-
-  target_groups = [{
-    //name_prefix      = "${var.name}-${each.key}"
-    backend_protocol = each.value.node_protocol
-    backend_port     = each.value.node_port
-    target_type      = "instance"
-    targets          = { for i, n in each.value.nodes : i => {
-      target_id = n.instance_id
-      port = each.value.node_port
-    } }
-    attach_lambda_permission = false
-  }]
-
-  http_tcp_listeners = [
+  # Use `subnet_mapping` to attach EIPs
+  subnet_mapping = [for i, eip in aws_eip.this :
     {
-      port               = each.value.listen_http_port
-      protocol           = each.value.listen_http_protocol
-      target_group_index = 0
+      allocation_id = eip.id
+      subnet_id     = module.vpc.private_subnets[i]
     }
   ]
-
+  
   tags = merge({
-    stack = var.name
+    stack = var.stack
     role  = "lb"
-    unit  = each.key
+    unit  = var.name
   }, var.tags)
 }
 
-// calculated after the albs are generated
-locals {
-  // combine the ingress definition with some of the alb data
-  ingresses = { for k, niw in local.ingresses_withnodes : k => merge(niw, {
-    lb_zone_id : module.alb[k].lb_zone_id
-    lb_id : module.alb[k].lb_id
-    lb_dns_name : module.alb[k].lb_dns_name
-  }) }
+resource "aws_eip" "this" {
+  count = length(var.azs)
+
+  domain = "vpc"
 }
 
 //"alb" = {

@@ -56,8 +56,10 @@ variable "ingresses" {
     node_port     = number
     node_protocol = string
 
-    listen_http_port     = number
-    listen_http_protocol = string
+    listen = map(object({
+      port = integers
+      protocl = string
+    }))
   }))
   default = {}
 }

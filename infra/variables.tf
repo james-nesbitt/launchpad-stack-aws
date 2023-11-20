@@ -48,14 +48,6 @@ variable "nodegroups" {
   }))
 }
 
-// not needed if you have no windows machines
-variable "windows_password" {
-  description = "Windows machine password"
-  sensitive   = true
-  type        = string
-  default     = ""
-}
-
 variable "ingresses" {
   description = "Configure ingress (ALB) for specific nodegroup roles"
   type = map(object({
@@ -63,8 +55,10 @@ variable "ingresses" {
     node_port     = number
     node_protocol = string
 
-    listen_http_port     = number
-    listen_http_protocol = string
+    listen = map(object({
+      port = integers
+      protocl = string
+    }))
   }))
   default = {}
 }
@@ -94,12 +88,19 @@ variable "mke_connect" {
   })
 }
 
+// not needed if you have no windows machines
+variable "windows_password" {
+  description = "Windows machine password"
+  sensitive   = true
+  type        = string
+  default     = ""
+}
+
 variable "expire_duration" {
   description = "The max time to allow this cluster to avoid early termination. Can use 'h', 'm', 's' in sane combinations, eg, '15h37m18s'."
   type        = string
   default     = "120h"
 }
-
 
 variable "extra_tags" {
   description = "Extra tags that will be added to all provisioned resources, where possible."

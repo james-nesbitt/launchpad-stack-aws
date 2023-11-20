@@ -6,3 +6,4 @@
 # terraform state files, which don't belong in git.
 **/terraform.tfstate
 **/terraform.tfstate.backup
+**/terraform.tfstate.*.backup
